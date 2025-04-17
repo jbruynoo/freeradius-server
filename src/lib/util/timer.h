@@ -93,7 +93,9 @@ fr_time_t		fr_timer_when(fr_timer_t *ev) CC_HINT(nonnull);
 
 bool			fr_timer_armed(fr_timer_t *ev);
 
-int			fr_timer_list_run(fr_timer_list_t *tl, fr_time_t *when) CC_HINT(nonnull);
+int			fr_timer_list_force_run(fr_timer_list_t *tl) CC_HINT(nonnull);
+
+int			fr_timer_list_run(fr_timer_list_t *tl, fr_time_t *when);
 
 int			fr_timer_list_disarm(fr_timer_list_t *tl) CC_HINT(nonnull);
 

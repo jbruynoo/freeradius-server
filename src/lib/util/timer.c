@@ -801,6 +801,33 @@ static int timer_list_ordered_run(fr_timer_list_t *tl, fr_time_t *when)
 	goto done;
 }
 
+/** Get the head of the timer list, the event may not be ready to fire
+ *
+ * This is used to forcefully run every event in the event loop.
+ *
+ * We pass in the real time, which may theoretically cause issues if timer
+ * callbacks are checking...  But the uses of this function are very limited.
+ *
+ * @return
+ *	- < 0 if we failed to update the parent list.
+ *	- 0 no timer events fired.
+ *	- > 0 number of timer event fired.
+ */
+int fr_timer_list_force_run(fr_timer_list_t *tl)
+{
+	fr_timer_t *ev;
+	fr_time_t now = fr_time(), when;
+	int count = 0;
+
+	while ((ev = timer_funcs[tl->type].head(tl))) {
+		if (fr_timer_list_run(tl, &when) < 0) return -1;
+		when = now;
+		count++;
+	}
+
+	return count;
+}
+
 /** Execute any pending events in the event loop
  *
  * @param[in] tl	to execute events in.
@@ -808,7 +835,7 @@ static int timer_list_ordered_run(fr_timer_list_t *tl, fr_time_t *when)
  *			- Set to 0 if no more events.
  *			- Set to the next event time if there are more events.
  * @return
- *	- < 0 if we failed to updated the parent list.
+ *	- < 0 if we failed to update the parent list.
  *	- 0 no timer events fired.
  *	- >0 number of timer event fired.
  */
